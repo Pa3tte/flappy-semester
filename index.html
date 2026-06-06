@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Flappy Semester</title>
-    <link rel="stylesheet" href="./styles.css?v=portfolio-2">
+    <link rel="stylesheet" href="./styles.css?v=stats-1">
     <style>
       :root {
         color-scheme: light;
@@ -180,9 +180,13 @@
               <p id="eyebrowText" class="eyebrow">Premium-Panik für zwischendurch</p>
               <h1>Flappy<br>Semester</h1>
               <p id="overlayText">Weiche Deadlines aus, sammle Kaffee und überlebe Prof. Deadline.</p>
+              <div id="menuStats" class="menu-stats" hidden></div>
+              <div id="statsPanel" class="stats-panel" hidden></div>
               <div id="skinChooser" class="skin-chooser" aria-label="Figur auswählen"></div>
               <div class="overlay-actions">
                 <button id="primaryButton" type="button">Spielen</button>
+                <button id="charactersButton" type="button" class="secondary menu-button">Charaktere</button>
+                <button id="statsButton" type="button" class="secondary menu-button">Statistiken</button>
                 <button id="menuButton" type="button" class="secondary menu-button" hidden>Hauptmenü</button>
                 <button id="howToButton" type="button" class="secondary">?</button>
               </div>
@@ -221,6 +225,6 @@
       </section>
     </main>
 
-    <script src="./src/standalone.js?v=portfolio-2"></script>
+    <script src="./src/standalone.js?v=stats-1"></script>
   </body>
 </html>

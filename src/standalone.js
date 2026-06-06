@@ -5,6 +5,8 @@
   const GAME_STATE = {
     START: "start",
     HOW_TO: "howTo",
+    CHARACTERS: "characters",
+    STATS: "stats",
     PLAYING: "playing",
     PAUSED: "paused",
     GAME_OVER: "gameOver"
@@ -82,7 +84,7 @@
         id: "erstiEnte",
         name: "Ersti-Ente",
         title: "Hat den Raumplan verloren",
-        description: "Mutig. Planlos. Bereit.",
+        description: "Motiviert. Ahnungslos. Gefährlich optimistisch.",
         priceCoffee: 0,
         unlock: { type: "default" },
         colorPrimary: "#2f9b5f",
@@ -96,7 +98,7 @@
         id: "kaffeeKobold",
         name: "Kaffee-Kobold",
         title: "Koffein statt Schlaf",
-        description: "Koffein im Blut.",
+        description: "Fliegt nur, wenn der Puls Vorlesung hält.",
         priceCoffee: 250,
         unlock: { type: "coffee", amount: 250 },
         colorPrimary: "#6f4a2f",
@@ -110,7 +112,7 @@
         id: "schlafmangelTaube",
         name: "Schlafmangel-Taube",
         title: "Seit Dienstag wach",
-        description: "Blinzelt aus Prinzip nicht.",
+        description: "Blinzelt nicht. Aus Prinzip.",
         priceCoffee: 500,
         unlock: { type: "coffee", amount: 500 },
         colorPrimary: "#64748b",
@@ -124,7 +126,7 @@
         id: "pruefungsamtPhantom",
         name: "Prüfungsamt-Phantom",
         title: "Nur mittwochs sichtbar",
-        description: "Erscheint nach Fristablauf.",
+        description: "Erscheint immer dann, wenn die Frist schon vorbei ist.",
         priceCoffee: 0,
         unlock: { type: "milestone", milestone: "reach_score_25" },
         colorPrimary: "#6d28d9",
@@ -138,7 +140,7 @@
         id: "bachelorBerserker",
         name: "Bachelor-Berserker",
         title: "Abgabe in 11 Minuten",
-        description: "Formatiert im Rage-Modus.",
+        description: "Hat Word-Dokumente im Rage-Modus formatiert.",
         priceCoffee: 1000,
         unlock: { type: "coffee_and_milestone", amount: 1000, milestone: "complete_10_missions" },
         colorPrimary: "#b91c1c",
@@ -152,7 +154,7 @@
         id: "mensaMoewenlord",
         name: "Mensa-Möwenlord",
         title: "Pommes sind sein Recht",
-        description: "Stiehlt Snacks und Würde.",
+        description: "Stiehlt Snacks und akademische Würde.",
         priceCoffee: 1500,
         unlock: { type: "coffee_and_milestone", amount: 1500, milestone: "survive_25_sabotages" },
         colorPrimary: "#0f766e",
@@ -166,7 +168,7 @@
         id: "ectsDrache",
         name: "ECTS-Drache",
         title: "Hortet Leistungspunkte",
-        description: "Selten? Nein. Teuer.",
+        description: "Nicht selten. Nur brutal teuer.",
         priceCoffee: 3000,
         unlock: { type: "coffee_and_milestone", amount: 3000, milestone: "reach_score_50" },
         colorPrimary: "#ea580c",
@@ -442,6 +444,116 @@
     return labels[milestoneId] || "Meilenstein";
   }
 
+  function getMilestoneProgress(milestoneId, progress) {
+    const stats = progress.stats || defaultProgressStats(progress.bestScore);
+    const values = {
+      reach_score_25: { label: "Score", current: Math.max(progress.bestScore || 0, stats.bestScore || 0), target: 25 },
+      reach_score_50: { label: "Score", current: Math.max(progress.bestScore || 0, stats.bestScore || 0), target: 50 },
+      complete_10_missions: { label: "Missionen", current: stats.missionsCompleted || 0, target: 10 },
+      survive_25_sabotages: { label: "Sabotagen", current: stats.sabotagesSurvivedTotal || 0, target: 25 },
+      earn_1000_total_coffee: { label: "Kaffee verdient", current: stats.totalCoffeeEarned || 0, target: 1000 },
+      play_25_runs: { label: "Runs", current: stats.totalRuns || 0, target: 25 }
+    };
+    return values[milestoneId] || { label: "Fortschritt", current: 0, target: 1 };
+  }
+
+  function getCharacterRequirementText(character, progress, selected = false) {
+    if (selected) {
+      return "Ausgewählt";
+    }
+    if (isCharacterUnlocked(character, progress)) {
+      return "Freigeschaltet";
+    }
+
+    const unlock = character.unlock || { type: "default" };
+    if (unlock.type === "default") {
+      return "Frei";
+    }
+    if (unlock.type === "coffee") {
+      return `${unlock.amount} Kaffee`;
+    }
+    if (unlock.type === "milestone") {
+      return `Benötigt: ${getMilestoneLabel(unlock.milestone)}`;
+    }
+    if (unlock.type === "coffee_and_milestone") {
+      return `Benötigt: ${unlock.amount} Kaffee + ${getMilestoneLabel(unlock.milestone)}`;
+    }
+    return "Gesperrt";
+  }
+
+  function getMilestoneRequirementBullet(milestoneId) {
+    const labels = {
+      reach_score_25: "Score 25 erreichen",
+      reach_score_50: "Score 50 erreichen",
+      complete_10_missions: "10 Missionen abgeschlossen",
+      survive_25_sabotages: "25 Sabotagen überleben",
+      earn_1000_total_coffee: "1000 Kaffee verdienen",
+      play_25_runs: "25 Runs spielen"
+    };
+    return labels[milestoneId] || "Meilenstein erreichen";
+  }
+
+  function getCharacterRequirementBullets(character, progress, selected = false) {
+    if (selected) {
+      return ["Ausgewählt"];
+    }
+    if (isCharacterUnlocked(character, progress)) {
+      return ["Freigeschaltet"];
+    }
+
+    const unlock = character.unlock || { type: "default" };
+    if (unlock.type === "default") {
+      return ["Frei"];
+    }
+
+    const bullets = [];
+    if (unlock.type === "coffee" || unlock.type === "coffee_and_milestone") {
+      bullets.push(`${unlock.amount} Kaffee`);
+    }
+    if (unlock.type === "milestone" || unlock.type === "coffee_and_milestone") {
+      bullets.push(getMilestoneRequirementBullet(unlock.milestone));
+    }
+    return bullets;
+  }
+
+  function getCharacterProgressBullets(character, progress, selected = false) {
+    if (selected || isCharacterUnlocked(character, progress)) {
+      return [];
+    }
+
+    const unlock = character.unlock || { type: "default" };
+    if (unlock.type === "default") {
+      return [];
+    }
+
+    const bullets = [];
+    if (unlock.type === "coffee" || unlock.type === "coffee_and_milestone") {
+      bullets.push(`Kaffee: ${Math.min(progress.coffee, unlock.amount)} / ${unlock.amount}`);
+      if (progress.coffee < unlock.amount) {
+        bullets.push(`Noch ${unlock.amount - progress.coffee} Kaffee fehlen`);
+      }
+    }
+    if (unlock.type === "milestone" || unlock.type === "coffee_and_milestone") {
+      const milestone = getMilestoneProgress(unlock.milestone, progress);
+      bullets.push(`${milestone.label}: ${Math.min(milestone.current, milestone.target)} / ${milestone.target}`);
+    }
+    return bullets;
+  }
+
+  function getCharacterActionState(character, progress, selected = false) {
+    if (selected) {
+      return { label: "Ausgewählt", disabled: true };
+    }
+    if (isCharacterUnlocked(character, progress)) {
+      return { label: "Auswählen", disabled: false };
+    }
+    const requirement = getCharacterRequirement(character, progress);
+    if (!requirement.met) {
+      return { label: "Gesperrt", disabled: true };
+    }
+    return { label: "Freischalten", disabled: false };
+  }
+
   function isCharacterUnlocked(character, progress) {
     return character.unlock.type === "default" || progress.unlockedCharacters.includes(character.id);
   }
@@ -569,6 +681,54 @@
       }
     }
     return false;
+  }
+
+  function findHitObstacle(player, obstacles, physics) {
+    const radius = player.radius - 5;
+    for (const obstacle of obstacles) {
+      const topBottom = obstacle.gapY - obstacle.gap / 2;
+      const bottomTop = obstacle.gapY + obstacle.gap / 2;
+      const hitTop = circleIntersectsRect(player, radius, obstacle.x, 0, physics.obstacleWidth, topBottom);
+      const hitBottom = circleIntersectsRect(player, radius, obstacle.x, bottomTop, physics.obstacleWidth, PLAYABLE_HEIGHT - bottomTop);
+      if (hitTop || hitBottom) {
+        return obstacle;
+      }
+    }
+    return null;
+  }
+
+  function getCrashFeedback(player, obstacles, physics) {
+    if (player.y + player.radius > PLAYABLE_HEIGHT) {
+      return {
+        reason: "Boden berührt",
+        tip: "Springe etwas früher."
+      };
+    }
+    if (player.y - player.radius < 0) {
+      return {
+        reason: "Zu hoch geflogen",
+        tip: "Kurze Taps sind besser als Panik-Flattern."
+      };
+    }
+
+    const obstacle = findHitObstacle(player, obstacles, physics);
+    if (obstacle && obstacle.sabotaged) {
+      return {
+        reason: "Prof. Deadline hat dich sabotiert",
+        tip: "Halte bei Sabotage mehr Abstand."
+      };
+    }
+    if (obstacle) {
+      return {
+        reason: "Deadline-Säule getroffen",
+        tip: "Springe etwas früher."
+      };
+    }
+
+    return {
+      reason: "Semesterkollision",
+      tip: "Einmal tief durchatmen, dann nochmal."
+    };
   }
 
   function calculateRunRewards(model, mission) {
@@ -1329,6 +1489,7 @@
       this.selectedSkinId = this.progress.selectedCharacterId;
       this.characterIndex = Math.max(0, THEME.skins.findIndex((skin) => skin.id === this.selectedSkinId));
       this.characterMessage = "";
+      this.characterFeedback = "";
       this.selectedOpponentId = readStorage(STORAGE_KEYS.selectedOpponent, "profDeadline");
       this.customOpponentName = readStorage(STORAGE_KEYS.customOpponentName, "");
       this.opponent = this.getSelectedOpponent();
@@ -1363,6 +1524,8 @@
       this.elements.menuButton.addEventListener("click", () => this.returnToMenu());
       this.elements.pauseButton.addEventListener("click", () => this.togglePause());
       this.elements.howToButton.addEventListener("click", () => this.showHowTo());
+      this.elements.charactersButton.addEventListener("click", () => this.showCharacters());
+      this.elements.statsButton.addEventListener("click", () => this.showStats());
       window.addEventListener("keydown", (event) => {
         if (event.repeat) {
           return;
@@ -1387,6 +1550,15 @@
       this.audio.unlock();
       this.audio.playButton();
       if (this.state === GAME_STATE.HOW_TO) {
+        this.state = GAME_STATE.START;
+        this.showStart();
+        return;
+      }
+      if (this.state === GAME_STATE.CHARACTERS) {
+        this.handleCharacterAction(THEME.skins[this.characterIndex] || THEME.skins[0]);
+        return;
+      }
+      if (this.state === GAME_STATE.STATS) {
         this.state = GAME_STATE.START;
         this.showStart();
         return;
@@ -1446,23 +1618,43 @@
     showStart() {
       this.syncUi();
       this.showOverlay(
-        `★ Best: ${this.bestScore}   ☕ Kaffee: ${this.coffee}`,
+        "",
         THEME.title,
-        "Weiche Deadlines aus, sammle Kaffee und überlebe Prof. Deadline.\nNeuer Run, neue Mission.",
+        "Überlebe Deadlines, sammle Kaffee und schalte neue Charaktere frei.",
         "Spielen",
-        false,
+        true,
         true,
         false,
         ""
       );
+      this.renderStartMenuStats();
+    }
+
+    showCharacters() {
+      this.state = GAME_STATE.CHARACTERS;
+      this.characterFeedback = "";
+      this.syncUi();
+      this.showOverlay(`☕ Kaffee: ${this.coffee}`, "Charaktere", "", "Freischalten", false, true, true, "Zurück");
+      this.renderCharacterScreen();
+    }
+
+    showStats() {
+      this.state = GAME_STATE.STATS;
+      this.syncUi();
+      this.showOverlay("", "Statistiken", "Dein Semester in Zahlen.", "Zurück", true, true, false, "");
+      this.renderStatsPanel();
     }
 
     showGameOver(comment) {
       const missionLine = this.model.missionComplete ? "Mission: geschafft" : "Mission: verpasst";
+      const crash = this.model.crashFeedback || {
+        reason: "Semesterkollision",
+        tip: "Einmal tief durchatmen, dann nochmal."
+      };
       this.showOverlay(
         `★ Score: ${this.model.score} | Best: ${this.bestScore}`,
         "Exmatrikuliert.",
-        `${missionLine}\n☕ Kaffee: +${this.model.stats.coffeeEarnedThisRun}\nGesamt: ${this.coffee}`,
+        `Grund: ${crash.reason}\nTipp: ${crash.tip}\n${missionLine}\n☕ Kaffee: +${this.model.stats.coffeeEarnedThisRun}\nGesamt: ${this.coffee}`,
         "Nochmal",
         true,
         true,
@@ -1478,16 +1670,74 @@
       this.elements.overlayText.textContent = text;
       this.elements.overlayText.hidden = !text;
       this.elements.primaryButton.textContent = button;
+      this.elements.primaryButton.disabled = false;
+      this.elements.menuStats.hidden = true;
+      this.elements.statsPanel.hidden = true;
       this.elements.skinChooser.hidden = hideSkins;
+      this.elements.charactersButton.hidden = this.state !== GAME_STATE.START;
+      this.elements.statsButton.hidden = this.state !== GAME_STATE.START;
       this.elements.howToButton.hidden = hideHelp;
       this.elements.menuButton.hidden = !showMenu;
       this.elements.menuButton.textContent = menuText;
+      this.elements.overlay.dataset.screen = this.state;
       this.elements.overlay.hidden = false;
+    }
+
+    renderStartMenuStats() {
+      const skin = this.getSelectedSkin();
+      this.elements.menuStats.textContent = "";
+      this.elements.menuStats.hidden = false;
+
+      const stats = [
+        { label: "Aktiv", value: skin.name },
+        { label: "Bestscore", value: String(this.bestScore) },
+        { label: "Kaffee", value: `☕ ${this.coffee}` }
+      ];
+
+      for (const stat of stats) {
+        const item = document.createElement("div");
+        const label = document.createElement("span");
+        const value = document.createElement("strong");
+        item.className = "menu-stat";
+        label.textContent = stat.label;
+        value.textContent = stat.value;
+        item.append(label, value);
+        this.elements.menuStats.append(item);
+      }
+    }
+
+    renderStatsPanel() {
+      const stats = normalizeProgressStats(this.progress.stats || {}, this.bestScore);
+      const unlockedCount = Array.isArray(this.progress.unlockedCharacters)
+        ? this.progress.unlockedCharacters.length
+        : 1;
+      const items = [
+        { label: "Runs gespielt", value: stats.totalRuns },
+        { label: "Höchster Score", value: Math.max(this.bestScore, stats.bestScore || 0) },
+        { label: "Kaffee gesammelt", value: stats.totalCoffeeEarned || 0 },
+        { label: "Missionen abgeschlossen", value: stats.missionsCompleted || 0 },
+        { label: "Sabotagen überlebt", value: stats.sabotagesSurvivedTotal || 0 },
+        { label: "Charaktere frei", value: `${unlockedCount}/${THEME.skins.length}` }
+      ];
+
+      this.elements.statsPanel.textContent = "";
+      this.elements.statsPanel.hidden = false;
+      for (const item of items) {
+        const row = document.createElement("div");
+        const label = document.createElement("span");
+        const value = document.createElement("strong");
+        row.className = "stats-row";
+        label.textContent = item.label;
+        value.textContent = String(item.value);
+        row.append(label, value);
+        this.elements.statsPanel.append(row);
+      }
     }
 
     returnToMenu() {
       this.resetRun();
       this.state = GAME_STATE.START;
+      this.characterFeedback = "";
       this.accumulator = 0;
       this.lastTime = performance.now();
       this.syncUi();
@@ -1567,7 +1817,7 @@
         }
       }
       if (hitWorldBounds(player) || hitObstacle(player, this.model.obstacles, PHYSICS)) {
-        this.endRun();
+        this.endRun(getCrashFeedback(player, this.model.obstacles, PHYSICS));
       }
     }
 
@@ -1592,11 +1842,12 @@
         .filter((item) => item.age < item.duration);
     }
 
-    endRun() {
+    endRun(crashFeedback = null) {
       if (this.state === GAME_STATE.GAME_OVER) {
         return;
       }
       this.state = GAME_STATE.GAME_OVER;
+      this.model.crashFeedback = crashFeedback || getCrashFeedback(this.model.player, this.model.obstacles, PHYSICS);
       this.audio.playCrash();
       this.triggerScreenShake(FEEDBACK.crashShakeDuration, FEEDBACK.crashShakeIntensity);
       this.spawnCrashEffects();
@@ -1702,6 +1953,7 @@
         missionNotified: false,
         nextOpponentTauntScore: 10,
         lastOpponentAction: "",
+        crashFeedback: null,
         stats: {
           sabotagesSurvived: 0,
           pipesPassed: 0,
@@ -1819,47 +2071,93 @@
       this.elements.pauseButton.disabled = this.state !== GAME_STATE.PLAYING;
       this.elements.pauseButton.textContent = "Ⅱ";
       if (this.state === GAME_STATE.START) {
-        this.elements.eyebrowText.textContent = `★ Best: ${this.bestScore}   ☕ Kaffee: ${this.coffee}`;
+        this.elements.eyebrowText.textContent = "";
+      }
+      if (this.state === GAME_STATE.CHARACTERS) {
+        this.elements.eyebrowText.textContent = `☕ Kaffee: ${this.coffee}`;
+      }
+      if (this.state === GAME_STATE.STATS) {
+        this.elements.eyebrowText.textContent = "";
       }
       this.renderSkinButtons();
     }
 
     renderSkinButtons() {
       this.elements.skinChooser.textContent = "";
+      if (this.state === GAME_STATE.CHARACTERS) {
+        this.renderCharacterScreen();
+        return;
+      }
       if (this.state !== GAME_STATE.START) {
         return;
       }
+    }
 
+    renderCharacterScreen() {
+      this.elements.skinChooser.textContent = "";
       const skin = THEME.skins[this.characterIndex] || THEME.skins[0];
       const unlocked = isCharacterUnlocked(skin, this.progress);
       const selected = this.selectedSkinId === skin.id;
-      const requirement = getCharacterRequirement(skin, this.progress);
-      const canUnlock = canUnlockCharacter(skin, this.progress);
+      const action = getCharacterActionState(skin, this.progress, selected);
       const previousButton = this.createCharacterNavButton("<", -1);
       const nextButton = this.createCharacterNavButton(">", 1);
-      const actionButton = document.createElement("button");
-      const details = document.createElement("div");
+      const details = document.createElement("article");
+      const preview = document.createElement("div");
       const swatch = document.createElement("span");
       const title = document.createElement("strong");
+      const subtitle = document.createElement("span");
       const description = document.createElement("span");
-      const status = document.createElement("span");
+      const requirementSection = this.createCharacterBulletSection(
+        selected || unlocked ? "Status" : "Benötigt",
+        getCharacterRequirementBullets(skin, this.progress, selected)
+      );
+      const progressSection = this.createCharacterBulletSection(
+        "Fortschritt",
+        getCharacterProgressBullets(skin, this.progress, selected)
+      );
+      const feedback = document.createElement("span");
 
-      details.className = "character-card";
+      previousButton.setAttribute("aria-label", "Vorheriger Charakter");
+      nextButton.setAttribute("aria-label", "Nächster Charakter");
+      details.className = "character-card character-card--large";
+      preview.className = `character-preview character-preview--${skin.shape || "duck"}`;
+      preview.style.setProperty("--character-primary", skin.colorPrimary);
+      preview.style.setProperty("--character-secondary", skin.colorSecondary);
       swatch.className = "character-swatch";
       swatch.style.background = skin.colorPrimary;
       title.textContent = skin.name;
-      description.textContent = `${skin.title}. ${skin.description}`;
-      status.className = "character-status";
-      status.textContent = this.characterMessage || (selected ? "Ausgewählt" : unlocked ? "Freigeschaltet" : requirement.label);
-      details.append(swatch, title, description, status);
+      subtitle.textContent = skin.title;
+      description.textContent = skin.description;
+      feedback.className = "character-feedback";
+      feedback.textContent = this.characterFeedback;
+      details.append(preview, swatch, title, subtitle, description, requirementSection, progressSection, feedback);
 
-      actionButton.type = "button";
-      actionButton.className = "skin-button character-action";
-      actionButton.textContent = selected ? "Ausgewählt" : unlocked ? "Auswählen" : "Freischalten";
-      actionButton.disabled = selected || (!unlocked && !canUnlock);
-      actionButton.addEventListener("click", () => this.handleCharacterAction(skin));
+      this.elements.primaryButton.textContent = action.label;
+      this.elements.primaryButton.disabled = action.disabled;
+      this.elements.skinChooser.hidden = false;
+      this.elements.skinChooser.append(previousButton, details, nextButton);
+    }
 
-      this.elements.skinChooser.append(previousButton, details, actionButton, nextButton);
+    createCharacterBulletSection(label, bullets) {
+      const section = document.createElement("div");
+      section.className = "character-bullet-section";
+      if (!bullets.length) {
+        section.hidden = true;
+        return section;
+      }
+
+      const heading = document.createElement("span");
+      const list = document.createElement("ul");
+      heading.className = "character-section-title";
+      heading.textContent = `${label}:`;
+      list.className = "character-bullet-list";
+      for (const bullet of bullets) {
+        const item = document.createElement("li");
+        item.textContent = bullet;
+        list.append(item);
+      }
+      section.append(heading, list);
+      return section;
     }
 
     createCharacterNavButton(label, direction) {
@@ -1870,7 +2168,8 @@
       button.addEventListener("click", () => {
         this.characterIndex = (this.characterIndex + direction + THEME.skins.length) % THEME.skins.length;
         this.characterMessage = "";
-        this.renderSkinButtons();
+        this.characterFeedback = "";
+        this.renderCharacterScreen();
       });
       return button;
     }
@@ -1878,13 +2177,15 @@
     handleCharacterAction(skin) {
       const unlocked = isCharacterUnlocked(skin, this.progress);
       if (unlocked) {
+        this.characterFeedback = "Ausgewählt.";
         this.selectCharacter(skin.id, "Ausgewählt!");
         return;
       }
 
       if (!canUnlockCharacter(skin, this.progress)) {
-        this.characterMessage = getCharacterRequirement(skin, this.progress).label;
-        this.renderSkinButtons();
+        this.characterMessage = getCharacterRequirementText(skin, this.progress, false);
+        this.characterFeedback = "Erst Anforderungen erfüllen.";
+        this.renderCharacterScreen();
         return;
       }
 
@@ -1893,6 +2194,7 @@
       if (!this.progress.unlockedCharacters.includes(skin.id)) {
         this.progress.unlockedCharacters.push(skin.id);
       }
+      this.characterFeedback = "Freigeschaltet und ausgewählt.";
       this.selectCharacter(skin.id, "Freigeschaltet!");
     }
 
@@ -1906,8 +2208,12 @@
       this.syncUi();
     }
 
+    getSelectedSkin() {
+      return THEME.skins.find((item) => item.id === this.selectedSkinId) || THEME.skins[0];
+    }
+
     render() {
-      const skin = THEME.skins.find((item) => item.id === this.selectedSkinId) || THEME.skins[0];
+      const skin = this.getSelectedSkin();
       this.renderer.draw({
         ...this.model,
         skin,
@@ -1942,8 +2248,12 @@
       titleText: document.querySelector("#overlay h1"),
       overlayText: document.getElementById("overlayText"),
       primaryButton: document.getElementById("primaryButton"),
+      charactersButton: document.getElementById("charactersButton"),
+      statsButton: document.getElementById("statsButton"),
       menuButton: document.getElementById("menuButton"),
       howToButton: document.getElementById("howToButton"),
+      menuStats: document.getElementById("menuStats"),
+      statsPanel: document.getElementById("statsPanel"),
       skinChooser: document.getElementById("skinChooser")
     };
 
