@@ -4,43 +4,223 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Flappy Semester</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./styles.css?v=portfolio-2">
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17262f;
+        --accent: #2e8f55;
+        --accent-dark: #1f6f42;
+        --button: #173b2f;
+        --sky-top: #7fc8e8;
+        --sky-bottom: #e7efc5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow-x: hidden;
+        overflow-y: auto;
+        color: var(--ink);
+        font-family: ui-rounded, "SF Pro Rounded", "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.18)), linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
+      }
+
+      .site-shell {
+        display: grid;
+        gap: clamp(22px, 5vw, 48px);
+        width: min(100% - 28px, 1080px);
+        margin: 0 auto;
+        padding: clamp(24px, 5vw, 56px) 0;
+      }
+
+      .project-hero,
+      .app,
+      .project-info {
+        width: 100%;
+      }
+
+      .project-hero,
+      .app {
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+
+      .project-hero {
+        gap: 14px;
+      }
+
+      .project-hero h1 {
+        margin: 0;
+        color: var(--accent-dark);
+        font-size: clamp(2.55rem, 9vw, 5.2rem);
+        line-height: 0.95;
+      }
+
+      .project-hero p {
+        max-width: 640px;
+        margin: 0;
+        font-weight: 750;
+        line-height: 1.45;
+      }
+
+      .project-kicker,
+      .feature-list li,
+      .tech-list li {
+        border-radius: 999px;
+        background: rgba(246, 255, 244, 0.76);
+      }
+
+      .project-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .button-link,
+      button {
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        font: inherit;
+        font-weight: 900;
+        background: var(--button);
+        cursor: pointer;
+      }
+
+      .button-link {
+        min-width: 136px;
+        padding: 12px 18px;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      .secondary-link {
+        color: #173b2f;
+        background: rgba(246, 255, 244, 0.82);
+        border: 1px solid rgba(65, 145, 88, 0.28);
+      }
+
+      .game-shell {
+        width: min(100%, 432px);
+      }
+
+      .canvas-wrap {
+        position: relative;
+        width: min(100%, 432px, calc((100svh - 32px) * 0.5625));
+        max-width: 432px;
+        aspect-ratio: 9 / 16;
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #8bd3ef;
+        box-shadow: 0 26px 70px rgba(22, 49, 61, 0.24);
+      }
+
+      #gameCanvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .project-info {
+        padding: clamp(20px, 4vw, 32px);
+        background: rgba(246, 255, 244, 0.68);
+        border: 1px solid rgba(65, 145, 88, 0.22);
+        border-radius: 12px;
+      }
+    </style>
   </head>
   <body>
-    <main class="app" aria-label="Flappy Semester Spiel">
-      <section class="game-shell">
-        <div class="canvas-wrap">
-          <canvas id="gameCanvas" width="432" height="768" aria-label="Flappy Semester Spielfeld"></canvas>
-          <div id="gameToolbar" class="game-toolbar" aria-label="Spielstatus" hidden>
-            <div class="hud-stat">
-              <span class="label">Score</span>
-              <strong id="scoreText">0</strong>
+    <main class="site-shell">
+      <section class="project-hero" aria-labelledby="projectTitle">
+        <p class="project-kicker">Portfolio-Demo</p>
+        <h1 id="projectTitle">Flappy Semester</h1>
+        <p>Ein humorvolles Browser-Game über Uni-Stress, Kaffee und sabotierende Deadlines.</p>
+        <div class="project-actions">
+          <a class="button-link" href="#game">Spiel starten</a>
+          <a class="button-link secondary-link" href="https://github.com/Pa3tte/flappy-semester" rel="noopener">GitHub ansehen</a>
+          <a class="button-link secondary-link" href="#features">Features</a>
+        </div>
+      </section>
+
+      <section id="game" class="app" aria-label="Flappy Semester Spiel">
+        <div class="game-shell">
+          <div class="canvas-wrap">
+            <canvas id="gameCanvas" width="432" height="768" aria-label="Flappy Semester Spielfeld"></canvas>
+            <div id="gameToolbar" class="game-toolbar" aria-label="Spielstatus" hidden>
+              <div class="hud-stat">
+                <span class="label">Score</span>
+                <strong id="scoreText">0</strong>
+              </div>
+              <div class="hud-stat hud-stat--right">
+                <span class="label">Kaffee</span>
+                <strong id="coffeeText">0</strong>
+              </div>
+              <button id="pauseButton" type="button" aria-label="Pause umschalten">Ⅱ</button>
+              <p id="missionText" class="mission-hud">Mission: Bereit</p>
+              <span id="bestText" hidden>0</span>
             </div>
-            <div class="hud-stat hud-stat--right">
-              <span class="label">Kaffee</span>
-              <strong id="coffeeText">0</strong>
+            <div id="overlay" class="overlay" data-screen="start">
+              <p id="eyebrowText" class="eyebrow">Premium-Panik für zwischendurch</p>
+              <h1>Flappy<br>Semester</h1>
+              <p id="overlayText">Weiche Deadlines aus, sammle Kaffee und überlebe Prof. Deadline.</p>
+              <div id="skinChooser" class="skin-chooser" aria-label="Figur auswählen"></div>
+              <div class="overlay-actions">
+                <button id="primaryButton" type="button">Spielen</button>
+                <button id="menuButton" type="button" class="secondary menu-button" hidden>Hauptmenü</button>
+                <button id="howToButton" type="button" class="secondary">?</button>
+              </div>
             </div>
-            <button id="pauseButton" type="button" aria-label="Pause umschalten">Ⅱ</button>
-            <p id="missionText" class="mission-hud">Mission: Neuer Run = neue Mission</p>
-            <span id="bestText" hidden>0</span>
-            <span id="goalLabel" hidden>Ziel</span>
-            <span id="goalText" hidden>0</span>
           </div>
-          <div id="overlay" class="overlay" data-screen="start">
-            <p id="eyebrowText" class="eyebrow">Premium-Panik fuer zwischendurch</p>
-            <h1>Flappy<br>Semester</h1>
-            <p id="overlayText">Hilf Byte-Basti durch die Koffeinzone, bevor das Modulhandbuch zurueckschlaegt.</p>
-            <div id="skinChooser" class="skin-chooser" aria-label="Figur auswaehlen"></div>
-            <div class="overlay-actions">
-              <button id="primaryButton" type="button">Spielen</button>
-              <button id="menuButton" type="button" class="secondary menu-button" hidden>Hauptmenü</button>
-              <button id="howToButton" type="button" class="secondary">?</button>
-            </div>
+        </div>
+      </section>
+
+      <section id="features" class="project-info" aria-labelledby="aboutTitle">
+        <h2 id="aboutTitle">Über das Projekt</h2>
+        <p>Flappy Semester ist ein Canvas-basiertes Browser-Game mit Missionssystem, Progression, freischaltbaren Charakteren und dynamischer Gegner-Sabotage.</p>
+
+        <div class="project-columns">
+          <div>
+            <h3>Features</h3>
+            <ul class="feature-list">
+              <li>Canvas Game Loop</li>
+              <li>Missionen & Kaffee-Progression</li>
+              <li>freischaltbare Charaktere</li>
+              <li>Gegner-Sabotage</li>
+              <li>localStorage-Speicherung</li>
+              <li>responsive UI</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Tech Stack</h3>
+            <ul class="tech-list">
+              <li>JavaScript</li>
+              <li>HTML5 Canvas</li>
+              <li>CSS</li>
+              <li>localStorage</li>
+              <li>GitHub Pages</li>
+            </ul>
           </div>
         </div>
       </section>
     </main>
 
-    <script src="src/standalone.js"></script>
+    <script src="./src/standalone.js?v=portfolio-2"></script>
   </body>
 </html>

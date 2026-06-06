@@ -29,12 +29,17 @@ body {
 }
 
 body {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   color: var(--ink);
   font-family: ui-rounded, "SF Pro Rounded", "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.2)),
     linear-gradient(180deg, var(--sky-top), var(--sky-bottom));
+}
+
+a {
+  color: inherit;
 }
 
 button {
@@ -65,10 +70,101 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+.site-shell {
+  display: grid;
+  gap: clamp(22px, 5vw, 48px);
+  width: min(100% - 28px, 1080px);
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 56px) 0;
+}
+
+.project-hero,
+.project-info {
+  width: 100%;
+  color: #143f2c;
+}
+
+.project-hero {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+}
+
+.project-kicker {
+  width: max-content;
+  margin: 0;
+  padding: 6px 12px;
+  color: var(--accent-dark);
+  font-size: clamp(0.76rem, 2.4vw, 0.9rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  background: rgba(246, 255, 244, 0.72);
+  border: 1px solid rgba(65, 145, 88, 0.24);
+  border-radius: 999px;
+}
+
+.project-hero h1,
+.project-info h2,
+.project-info h3 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.project-hero h1 {
+  color: var(--accent-dark);
+  font-size: clamp(2.55rem, 9vw, 5.2rem);
+  line-height: 0.95;
+  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.62);
+}
+
+.project-hero p:not(.project-kicker) {
+  max-width: 640px;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1rem, 2.7vw, 1.22rem);
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.button-link {
+  min-width: 136px;
+  padding: 12px 18px;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+  background: var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.16);
+}
+
+.button-link:hover {
+  background: var(--accent-dark);
+}
+
+.secondary-link {
+  color: #173b2f;
+  background: rgba(246, 255, 244, 0.82);
+  border: 1px solid rgba(65, 145, 88, 0.28);
+  box-shadow: none;
+}
+
+.secondary-link:hover {
+  background: rgba(223, 245, 218, 0.92);
+}
+
 .app {
   display: grid;
-  min-height: 100vh;
-  padding: clamp(14px, 3vh, 28px);
+  min-height: auto;
+  padding: 0;
   place-items: center;
 }
 
@@ -163,7 +259,7 @@ button:focus-visible {
 
 .canvas-wrap {
   position: relative;
-  width: min(100%, calc((100vh - 44px) * 0.5625));
+  width: min(100%, 432px, calc((100svh - 32px) * 0.5625));
   max-width: 432px;
   aspect-ratio: 9 / 16;
   margin: 0 auto;
@@ -363,14 +459,65 @@ button:focus-visible {
   color: var(--accent-dark) !important;
 }
 
-@media (max-width: 440px), (max-height: 720px) {
-  body {
-    overflow: auto;
-  }
+.project-info {
+  padding: clamp(20px, 4vw, 32px);
+  background: rgba(246, 255, 244, 0.68);
+  border: 1px solid rgba(65, 145, 88, 0.22);
+  border-radius: 12px;
+  box-shadow: 0 20px 55px rgba(22, 49, 61, 0.14);
+}
 
+.project-info h2 {
+  color: var(--accent-dark);
+  font-size: clamp(1.55rem, 4vw, 2.15rem);
+}
+
+.project-info > p {
+  max-width: 740px;
+  margin: 10px 0 0;
+  color: var(--ink);
+  font-size: clamp(0.98rem, 2.4vw, 1.08rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.project-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(18px, 4vw, 34px);
+  margin-top: 22px;
+}
+
+.project-info h3 {
+  color: #173b2f;
+  font-size: 1rem;
+}
+
+.feature-list,
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 12px 0 0;
+  list-style: none;
+}
+
+.feature-list li,
+.tech-list li {
+  padding: 7px 10px;
+  color: #214333;
+  font-size: 0.9rem;
+  font-weight: 850;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(65, 145, 88, 0.22);
+  border-radius: 999px;
+}
+
+@media (max-width: 440px), (max-height: 720px) {
   .app {
-    min-height: 100svh;
-    padding: 10px;
+    min-height: auto;
+    padding: 0;
   }
 
   .game-toolbar {
@@ -388,7 +535,7 @@ button:focus-visible {
   }
 
   .canvas-wrap {
-    width: min(100%, calc((100svh - 20px) * 0.5625));
+    width: min(100%, 432px, calc((100svh - 20px) * 0.5625));
   }
 
   .label {
@@ -429,5 +576,28 @@ button:focus-visible {
 
   button {
     padding: 9px 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-shell {
+    width: min(100% - 20px, 1080px);
+    padding-block: 18px 28px;
+  }
+
+  .project-hero {
+    gap: 10px;
+  }
+
+  .project-actions {
+    width: min(100%, 320px);
+  }
+
+  .button-link {
+    flex: 1 1 132px;
+  }
+
+  .project-columns {
+    grid-template-columns: 1fr;
   }
 }

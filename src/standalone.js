@@ -60,8 +60,8 @@
   // CONTENT
   const THEME = {
     title: "Flappy\nSemester",
-    subtitle: "Tap. Flieg. Besteh die Uni.",
-    howTo: "Tippen oder Space = Flap.\nUni-Chaos ausweichen.",
+    subtitle: "Bestehe das Semester.",
+    howTo: "Tippen oder Space = Flap.\nWeiche dem Uni-Chaos aus.",
     comments: [
       "Modulhandbuch sagt nein.",
       "Koffein leer.",
@@ -71,7 +71,7 @@
       "Compiler weint.",
       "Crashkurs bestanden."
     ],
-    scoreBursts: ["ECTS!", "Koffein!", "Noch wach!", "Build gruen!", "Fast akademisch!"],
+    scoreBursts: ["ECTS!", "Koffein!", "Noch wach!", "Build grün!", "Fast akademisch!"],
     obstacles: [
       { label: "WHITE WIRE", detail: "ENERGY", color: "#101820" },
       { label: "DEADLINE", detail: "23:59", color: "#b83b34" },
@@ -122,7 +122,7 @@
       },
       {
         id: "pruefungsamtPhantom",
-        name: "Pruefungsamt-Phantom",
+        name: "Prüfungsamt-Phantom",
         title: "Nur mittwochs sichtbar",
         description: "Erscheint nach Fristablauf.",
         priceCoffee: 0,
@@ -150,9 +150,9 @@
       },
       {
         id: "mensaMoewenlord",
-        name: "Mensa-Moewenlord",
+        name: "Mensa-Möwenlord",
         title: "Pommes sind sein Recht",
-        description: "Stiehlt Snacks und Wuerde.",
+        description: "Stiehlt Snacks und Würde.",
         priceCoffee: 1500,
         unlock: { type: "coffee_and_milestone", amount: 1500, milestone: "survive_25_sabotages" },
         colorPrimary: "#0f766e",
@@ -190,7 +190,7 @@
           warnShrink: "Neue Ordnung.",
           warnBluff: "Achtung Papierkram.",
           shift: "Abgabe vorgezogen.",
-          shrink: "Luecke? Welche Luecke?",
+          shrink: "Lücke? Welche Lücke?",
           bluff: "Nur Kleingedrucktes."
         }
       }
@@ -238,7 +238,7 @@
     },
     {
       id: "survive_2_sabotages",
-      text: "Ueberlebe 2 Sabotagen.",
+      text: "Überlebe 2 Sabotagen.",
       shortText: "2 Sabotagen",
       reward: 30,
       isComplete(game) {
@@ -262,8 +262,8 @@
     },
     {
       id: "pass_5_pipes",
-      text: "Schaffe 5 Saeulen.",
-      shortText: "5 Saeulen",
+      text: "Schaffe 5 Säulen.",
+      shortText: "5 Säulen",
       reward: 20,
       isComplete(game) {
         return game.model.stats.pipesPassed >= 5;
@@ -308,7 +308,7 @@
       return { tier: 1, name: "annoying", actionChance: 0.3, cooldown: 4.3, maxGapShift: 50, gapShrinkFactor: 0.9, minGapHeight: 136, maxComboActions: 1, tierMessage: "" };
     }
     if (score < 20) {
-      return { tier: 2, name: "stress", actionChance: 0.5, cooldown: 3.15, maxGapShift: 74, gapShrinkFactor: 0.82, minGapHeight: 120, maxComboActions: 1, tierMessage: "Pruefungsphase beginnt." };
+      return { tier: 2, name: "stress", actionChance: 0.5, cooldown: 3.15, maxGapShift: 74, gapShrinkFactor: 0.82, minGapHeight: 120, maxComboActions: 1, tierMessage: "Prüfungsphase beginnt." };
     }
     if (score < 30) {
       return { tier: 2, name: "crunch", actionChance: 0.68, cooldown: 2.35, maxGapShift: 84, gapShrinkFactor: 0.78, minGapHeight: 114, maxComboActions: 1, tierMessage: "" };
@@ -450,7 +450,7 @@
     const unlock = character.unlock || { type: "default" };
     const missing = [];
     if (unlock.type === "default") {
-      return { met: true, label: "Ausgewaehlt" };
+      return { met: true, label: "Ausgewählt" };
     }
     if ((unlock.type === "coffee" || unlock.type === "coffee_and_milestone") && progress.coffee < unlock.amount) {
       missing.push(`${unlock.amount} Kaffee`);
@@ -460,7 +460,7 @@
     }
     return {
       met: missing.length === 0,
-      label: missing.length ? `Benoetigt: ${missing.join(" + ")}` : character.priceCoffee > 0 ? `${character.priceCoffee} Kaffee` : "Freischalten"
+      label: missing.length ? `Benötigt: ${missing.join(" + ")}` : character.priceCoffee > 0 ? `${character.priceCoffee} Kaffee` : "Freischalten"
     };
   }
 
@@ -1445,7 +1445,16 @@
 
     showStart() {
       this.syncUi();
-      this.showOverlay(`★ Best: ${this.bestScore}   ☕ Kaffee: ${this.coffee}`, THEME.title, `${THEME.subtitle}\nNeuer Run = neue Mission.`, "Spielen", false, true, false, "");
+      this.showOverlay(
+        `★ Best: ${this.bestScore}   ☕ Kaffee: ${this.coffee}`,
+        THEME.title,
+        "Weiche Deadlines aus, sammle Kaffee und überlebe Prof. Deadline.\nNeuer Run, neue Mission.",
+        "Spielen",
+        false,
+        true,
+        false,
+        ""
+      );
     }
 
     showGameOver(comment) {
@@ -1636,14 +1645,6 @@
       this.opponentActions.reset();
     }
 
-    getMissionProgressText() {
-      if (!this.model.mission) {
-        return "-";
-      }
-
-      return this.model.mission.progress(this);
-    }
-
     getLiveCoffeeThisRun() {
       if (this.model.rewardsPaid) {
         return this.model.stats.coffeeEarnedThisRun;
@@ -1811,12 +1812,10 @@
       this.elements.toolbar.hidden = this.state !== GAME_STATE.PLAYING;
       this.elements.scoreText.textContent = `★ ${this.model.score}`;
       this.elements.bestText.textContent = String(this.bestScore);
-      this.elements.goalLabel.textContent = this.model.mission ? this.model.mission.shortText : "Ziel";
-      this.elements.goalText.textContent = this.getMissionProgressText();
       this.elements.coffeeText.textContent = `☕ +${this.getLiveCoffeeThisRun()}`;
       this.elements.missionText.textContent = this.model.mission
         ? `Mission: ${this.model.mission.text}`
-        : "Mission: Neuer Run = neue Mission";
+        : "Mission: Bereit";
       this.elements.pauseButton.disabled = this.state !== GAME_STATE.PLAYING;
       this.elements.pauseButton.textContent = "Ⅱ";
       if (this.state === GAME_STATE.START) {
@@ -1851,12 +1850,12 @@
       title.textContent = skin.name;
       description.textContent = `${skin.title}. ${skin.description}`;
       status.className = "character-status";
-      status.textContent = this.characterMessage || (selected ? "Ausgewaehlt" : unlocked ? "Freigeschaltet" : requirement.label);
+      status.textContent = this.characterMessage || (selected ? "Ausgewählt" : unlocked ? "Freigeschaltet" : requirement.label);
       details.append(swatch, title, description, status);
 
       actionButton.type = "button";
       actionButton.className = "skin-button character-action";
-      actionButton.textContent = selected ? "Ausgewaehlt" : unlocked ? "Auswaehlen" : "Freischalten";
+      actionButton.textContent = selected ? "Ausgewählt" : unlocked ? "Auswählen" : "Freischalten";
       actionButton.disabled = selected || (!unlocked && !canUnlock);
       actionButton.addEventListener("click", () => this.handleCharacterAction(skin));
 
@@ -1879,7 +1878,7 @@
     handleCharacterAction(skin) {
       const unlocked = isCharacterUnlocked(skin, this.progress);
       if (unlocked) {
-        this.selectCharacter(skin.id, "Ausgewaehlt!");
+        this.selectCharacter(skin.id, "Ausgewählt!");
         return;
       }
 
@@ -1935,8 +1934,6 @@
       toolbar: document.getElementById("gameToolbar"),
       scoreText: document.getElementById("scoreText"),
       bestText: document.getElementById("bestText"),
-      goalLabel: document.getElementById("goalLabel"),
-      goalText: document.getElementById("goalText"),
       coffeeText: document.getElementById("coffeeText"),
       missionText: document.getElementById("missionText"),
       pauseButton: document.getElementById("pauseButton"),
