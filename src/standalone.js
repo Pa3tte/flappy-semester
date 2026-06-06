@@ -1033,8 +1033,9 @@
         const shake = model.screenShake.intensity * (model.screenShake.time / model.screenShake.duration);
         this.ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
       }
-      this.drawSky();
+      this.drawSky(model.distance, model.reducedMotion);
       this.drawClouds(model.clouds);
+      this.drawCampusBackdrop(model.distance, model.reducedMotion);
       this.drawOpponent(model.opponent, model.distance);
       this.drawObstacles(model.obstacles);
       this.drawGround(model.distance, model.reducedMotion);
@@ -1045,26 +1046,40 @@
       this.ctx.restore();
     }
 
-    drawSky() {
+    drawSky(distance = 0, reducedMotion = false) {
       const gradient = this.ctx.createLinearGradient(0, 0, 0, WORLD.height);
-      gradient.addColorStop(0, "#79c7e8");
-      gradient.addColorStop(0.62, "#c7ebdf");
-      gradient.addColorStop(1, "#efe0a3");
+      gradient.addColorStop(0, "#78c9ee");
+      gradient.addColorStop(0.48, "#c7ebdf");
+      gradient.addColorStop(0.82, "#e4f2c4");
+      gradient.addColorStop(1, "#f0dea2");
       this.ctx.fillStyle = gradient;
       this.ctx.fillRect(0, 0, WORLD.width, WORLD.height);
-      this.ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      for (let y = 92; y < PLAYABLE_HEIGHT; y += 112) {
+
+      const sunX = WORLD.width - 82;
+      const sunY = 82;
+      const sun = this.ctx.createRadialGradient(sunX, sunY, 8, sunX, sunY, 92);
+      sun.addColorStop(0, "rgba(255, 245, 177, 0.72)");
+      sun.addColorStop(1, "rgba(255, 245, 177, 0)");
+      this.ctx.fillStyle = sun;
+      this.ctx.fillRect(0, 0, WORLD.width, 190);
+
+      const offset = reducedMotion ? 0 : -((distance * 0.05) % 96);
+      this.ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+      for (let y = 92 + offset; y < PLAYABLE_HEIGHT; y += 112) {
         this.ctx.fillRect(0, y, WORLD.width, 2);
       }
     }
 
     drawClouds(clouds) {
       this.ctx.save();
-      this.ctx.fillStyle = "rgba(255, 255, 255, 0.82)";
       for (const cloud of clouds) {
         this.ctx.save();
         this.ctx.translate(cloud.x, cloud.y);
         this.ctx.scale(cloud.scale, cloud.scale);
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+        this.ctx.shadowColor = "rgba(42, 99, 118, 0.08)";
+        this.ctx.shadowBlur = 12;
+        this.ctx.shadowOffsetY = 5;
         this.ctx.beginPath();
         this.ctx.arc(0, 22, 22, Math.PI, Math.PI * 2);
         this.ctx.arc(26, 12, 28, Math.PI, Math.PI * 2);
@@ -1074,6 +1089,89 @@
         this.ctx.restore();
       }
       this.ctx.restore();
+    }
+
+    drawCampusBackdrop(distance, reducedMotion) {
+      const ctx = this.ctx;
+      const baseY = PLAYABLE_HEIGHT - 76;
+      const offset = reducedMotion ? 0 : -((distance * 0.18) % 288);
+
+      ctx.save();
+      ctx.globalAlpha = 0.86;
+      for (let x = offset - 288; x < WORLD.width + 288; x += 288) {
+        this.drawCampusBlock(x, baseY);
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.globalAlpha = 0.72;
+      const treeOffset = reducedMotion ? 0 : -((distance * 0.28) % 144);
+      for (let x = treeOffset - 70; x < WORLD.width + 144; x += 144) {
+        this.drawCampusTree(x, PLAYABLE_HEIGHT - 58, 0.78);
+        this.drawCampusTree(x + 76, PLAYABLE_HEIGHT - 48, 0.62);
+      }
+      ctx.restore();
+    }
+
+    drawCampusBlock(x, baseY) {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.fillStyle = "rgba(64, 126, 105, 0.34)";
+      ctx.strokeStyle = "rgba(32, 89, 74, 0.24)";
+      ctx.lineWidth = 2;
+
+      this.roundedRect(x + 10, baseY - 64, 108, 64, 7);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(245, 255, 242, 0.36)";
+      for (let wx = x + 24; wx < x + 104; wx += 24) {
+        this.roundedRect(wx, baseY - 50, 12, 15, 3);
+        ctx.fill();
+        this.roundedRect(wx, baseY - 26, 12, 15, 3);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "rgba(44, 99, 83, 0.38)";
+      ctx.beginPath();
+      ctx.moveTo(x + 136, baseY);
+      ctx.lineTo(x + 136, baseY - 48);
+      ctx.lineTo(x + 188, baseY - 78);
+      ctx.lineTo(x + 240, baseY - 48);
+      ctx.lineTo(x + 240, baseY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(245, 255, 242, 0.34)";
+      for (let ax = x + 154; ax <= x + 216; ax += 31) {
+        ctx.beginPath();
+        ctx.arc(ax, baseY - 27, 8, Math.PI, 0);
+        ctx.lineTo(ax + 8, baseY - 8);
+        ctx.lineTo(ax - 8, baseY - 8);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "rgba(90, 118, 101, 0.28)";
+      this.roundedRect(x + 252, baseY - 38, 48, 38, 6);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    drawCampusTree(x, y, scale) {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = "rgba(92, 99, 64, 0.36)";
+      this.roundedRect(-4, -26, 8, 28, 3);
+      ctx.fill();
+      ctx.fillStyle = "rgba(49, 128, 86, 0.38)";
+      ctx.beginPath();
+      ctx.arc(-12, -28, 15, 0, Math.PI * 2);
+      ctx.arc(4, -35, 18, 0, Math.PI * 2);
+      ctx.arc(18, -26, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
 
     drawOpponent(opponent, distance) {
@@ -1213,16 +1311,59 @@
     }
 
     drawGround(distance, reducedMotion) {
-      this.ctx.fillStyle = "#d9a84d";
-      this.ctx.fillRect(0, PLAYABLE_HEIGHT, WORLD.width, WORLD.ground);
-      this.ctx.fillStyle = "#638d60";
-      this.ctx.fillRect(0, PLAYABLE_HEIGHT, WORLD.width, 18);
+      const ctx = this.ctx;
+      const pathGradient = ctx.createLinearGradient(0, PLAYABLE_HEIGHT, 0, WORLD.height);
+      pathGradient.addColorStop(0, "#bdda74");
+      pathGradient.addColorStop(0.22, "#75aa68");
+      pathGradient.addColorStop(0.24, "#d9b86a");
+      pathGradient.addColorStop(1, "#c99248");
+      ctx.fillStyle = pathGradient;
+      ctx.fillRect(0, PLAYABLE_HEIGHT, WORLD.width, WORLD.ground);
+
+      ctx.fillStyle = "#5f9b5c";
+      ctx.fillRect(0, PLAYABLE_HEIGHT, WORLD.width, 18);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+      ctx.fillRect(0, PLAYABLE_HEIGHT + 18, WORLD.width, 3);
+
       const offset = reducedMotion ? 0 : -(distance % 36);
       for (let x = offset; x < WORLD.width + 36; x += 36) {
-        this.ctx.fillStyle = "#486f4c";
-        this.ctx.fillRect(x, PLAYABLE_HEIGHT + 6, 24, 5);
-        this.ctx.fillStyle = "rgba(120, 77, 35, 0.2)";
-        this.ctx.fillRect(x + 8, PLAYABLE_HEIGHT + 34, 28, 5);
+        ctx.fillStyle = "#486f4c";
+        ctx.fillRect(x, PLAYABLE_HEIGHT + 6, 24, 5);
+        ctx.fillStyle = "rgba(120, 77, 35, 0.2)";
+        ctx.fillRect(x + 8, PLAYABLE_HEIGHT + 34, 28, 5);
+      }
+
+      this.drawGroundDecor(distance, reducedMotion);
+    }
+
+    drawGroundDecor(distance, reducedMotion) {
+      const ctx = this.ctx;
+      const offset = reducedMotion ? 0 : -((distance * 0.9) % 168);
+      for (let x = offset - 80; x < WORLD.width + 168; x += 168) {
+        ctx.save();
+        ctx.globalAlpha = 0.72;
+        ctx.translate(x + 34, PLAYABLE_HEIGHT + 52);
+        ctx.rotate(-0.1);
+        ctx.fillStyle = "#f7fbef";
+        this.roundedRect(-10, -13, 20, 22, 4);
+        ctx.fill();
+        ctx.fillStyle = "#8b5e3c";
+        ctx.fillRect(-9, -8, 18, 6);
+        ctx.fillStyle = "#2e8f55";
+        ctx.fillRect(-6, 1, 12, 4);
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha = 0.58;
+        ctx.translate(x + 104, PLAYABLE_HEIGHT + 34);
+        ctx.fillStyle = "#fff1a8";
+        this.roundedRect(-13, -9, 26, 18, 3);
+        ctx.fill();
+        ctx.fillStyle = "#a8322d";
+        ctx.font = "900 7px ui-rounded, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("23:59", 0, 3);
+        ctx.restore();
       }
     }
 

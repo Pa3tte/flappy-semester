@@ -1,41 +1,40 @@
-# Campus Koller
+# Flappy Semester 🎮☕
 
-Ein eigenstaendiges Premium-Mini-Game ohne externe Abhaengigkeiten. Du steuerst Byte-Basti, einen ueberforderten Informatik-Studenten, durch White-Wire-Dosen, Deadline-Stapel und Modulhandbuecher.
+Flappy Semester ist ein kleines Browsergame im Flappy-Bird-Stil mit Uni-, Kaffee- und Deadline-Thema.
 
-## Starten
+Das Projekt ist als Lern- und Portfolio-Projekt entstanden. Es wurde KI-gestützt umgesetzt. Mein Fokus lag dabei auf Requirements Engineering, Prompting, Testing, Debugging, Git/GitHub, Deployment und iterativer UI/UX-Verbesserung.
 
-```sh
-python3 -m http.server 8000
-```
+## Live-Demo
 
-Dann im Browser oeffnen:
+👉 https://pa3tte.github.io/flappy-semester/
 
-```text
-http://localhost:8000
-```
+## Idee
 
-## Steuerung
+Im Spiel fliegt man durch ein Uni-inspiriertes Level, weicht Deadlines aus, sammelt Kaffee und versucht, möglichst lange zu überleben.
 
-- Leertaste, Pfeil nach oben oder `W`: springen
-- Maus oder Trackpad: springen/starten
-- `P` oder `Esc`: Pause
-- `H`: How to Play
+Prof. Deadline sorgt dabei für zusätzliche Herausforderungen und kann das Spielgeschehen sabotieren.
 
 ## Features
 
-- Startscreen, How-to-Ansicht, Pause und schneller Neustart
-- Humorvolle Crash-Kommentare
-- Lokaler Highscore
-- Freischaltbare Skins bei Score 8 und 18
-- Tagesziel
-- Partikeleffekte und Soundeffekte ueber AudioManager
-- Modulare Struktur fuer Spiellogik, Rendering, Input, UI, Audio und Storage
+- Browsergame mit HTML Canvas
+- Flappy-Bird-inspiriertes Gameplay
+- Uni-, Kaffee- und Deadline-Thema
+- Charakterauswahl im Spiel
+- Freischaltbare Charaktere
+- Kaffee als Fortschritts-/Währungs-System
+- Missionen und Progression
+- Gegner/Sabotage-Mechanik durch Prof. Deadline
+- Statistik-Screen
+- Feedback beim Tod mit Todesgrund/Hinweis
+- Neuer Ingame-Hintergrund
+- Speicherung von Fortschritt über localStorage
+- Deployment über GitHub Pages
 
-## Checks
+## Technologien
 
-Falls Node installiert ist:
-
-```sh
-node --check src/main.js
-node tests/smoke.mjs
-```
+- HTML
+- CSS
+- JavaScript
+- HTML Canvas
+- localStorage
+- Git 
